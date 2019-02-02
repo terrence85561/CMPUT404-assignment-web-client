@@ -22,15 +22,16 @@ import sys
 import socket
 import re
 # you may use urllib to encode data appropriately
-import urllib.parse
+from urllib.parse import urlparse,urlencode
 
 def help():
     print("httpclient.py [GET/POST] [URL]\n")
 
 class HTTPResponse(object):
     def __init__(self, code=200, body=""):
-        self.code = code
+        self.code = int(code)
         self.body = body
+        
 
 class HTTPClient(object):
     #def get_host_port(self,url):
@@ -41,13 +42,18 @@ class HTTPClient(object):
         return None
 
     def get_code(self, data):
-        return None
+
+        return data.split()[1]
 
     def get_headers(self,data):
-        return None
+        print(data)
+        header = data.split("\r\n\r\n")[0]
+        
+        return header
 
     def get_body(self, data):
-        return None
+        body = data.split("\r\n\r\n")[1]
+        return body
     
     def sendall(self, data):
         self.socket.sendall(data.encode('utf-8'))
@@ -65,16 +71,72 @@ class HTTPClient(object):
                 buffer.extend(part)
             else:
                 done = not part
-        return buffer.decode('utf-8')
+        decode_method = self.get_charset(buffer)
+        return buffer.decode(decode_method)
 
     def GET(self, url, args=None):
-        code = 500
-        body = ""
+        # call url parser to get information of url
+        scheme,host_name,port,path = self.urlparser(url)
+        print('scheme:{}; host_name:{}; port:{}; path:{}'.format(scheme,host_name,port,path))
+        try:
+            # create a socket object, begins connection
+            self.connect(host_name,port)
+            
+            # create payload
+            payload = self.make_payload(host_name,path,method = "GET")
+            # send payload
+            self.sendall(payload)
+
+            # receive data
+            data = self.recvall(self.socket)
+
+        except Exception as e:
+            print(str(e))
+            code = 404
+            
+            return HTTPResponse(code = code)
+        
+        finally:
+            print('closing connection')
+            self.close()
+        
+        
+        header = self.get_headers(data)
+        code = self.get_code(header)
+        body = self.get_body(data)
         return HTTPResponse(code, body)
 
     def POST(self, url, args=None):
-        code = 500
-        body = ""
+        # call url parser to get information of url
+        scheme,host_name,port,path = self.urlparser(url)
+        
+        # get vars in args
+        if args != None:
+            args = urlencode(args)
+            print('the variables in post request body are %s'%args)
+        
+        try:
+            # create a socket object,begins connection
+            self.connect(host_name,port)
+
+            #create payload
+            payload = self.make_payload(host_name,path,method="POST",args=args)
+            
+            self.sendall(payload)
+            # receive data
+            data = self.recvall(self.socket)
+        
+        except Exception as e:
+            print(str(e))
+            code = 404
+            return HTTPResponse(code = code)
+
+        finally:
+            self.close()
+        
+        header = self.get_headers(data)
+        code = self.get_code(header)
+        body = self.get_body(data)
         return HTTPResponse(code, body)
 
     def command(self, url, command="GET", args=None):
@@ -83,6 +145,50 @@ class HTTPClient(object):
         else:
             return self.GET( url, args )
     
+    def urlparser(self,url):
+        # this function is used for analyze the infomation in url
+        # parse url object
+        urlParse = urlparse(url)
+        scheme = urlParse.scheme
+        host_name = urlParse.hostname
+        port = urlParse.port # can be None, if None, 80 for http, 443 for https
+        path = urlParse.path # CAN BE nONE
+        if port == None:
+            if scheme == 'http':
+                port = 80
+            elif scheme == 'https':
+                port = 443
+
+        if len(path) == 0:
+            path = '/'
+        
+        return scheme,host_name,port,path
+
+    def make_payload(self,host,path,method,args = None):
+        if method == 'GET':
+            payload = "GET {PATH} HTTP/1.1\r\nHOST: {HOST}\r\nConnection: close\r\n\r\n".format(PATH=path,HOST=host)
+            print('payload:\r\n',payload)
+            
+
+        elif method == 'POST':
+            payload = "POST {PATH} HTTP/1.1\r\nHOST: {HOST}\r\nContent-Type: application/x-www-form-urlencoded\r\nConnection: close\r\n\r\n{VARS}".format(PATH=path,HOST=host,VARS=args)
+            print('payload:\r\n',payload)
+        
+        return payload
+
+    def get_charset(self,data):
+       
+        m = re.search(b"charset=\S*\s+",data)
+        if m != None:
+            decode_method_byte = m.group(0).split(b'=')[1]
+            decode_method = decode_method_byte.decode('utf-8')
+        else:
+            decode_method = 'utf-8'
+        # print(decode_method)
+        return decode_method
+
+
+        return decode_method
 if __name__ == "__main__":
     client = HTTPClient()
     command = "GET"
