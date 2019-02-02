@@ -125,7 +125,7 @@ class HTTPClient(object):
             self.sendall(payload)
             # receive data
             data = self.recvall(self.socket)
-        
+            print(data)
         except Exception as e:
             print(str(e))
             code = 404
@@ -133,10 +133,11 @@ class HTTPClient(object):
 
         finally:
             self.close()
-        
+        # print(data)
         header = self.get_headers(data)
         code = self.get_code(header)
         body = self.get_body(data)
+        # print(header)
         return HTTPResponse(code, body)
 
     def command(self, url, command="GET", args=None):
@@ -171,7 +172,11 @@ class HTTPClient(object):
             
 
         elif method == 'POST':
-            payload = "POST {PATH} HTTP/1.1\r\nHOST: {HOST}\r\nContent-Type: application/x-www-form-urlencoded\r\nConnection: close\r\n\r\n{VARS}".format(PATH=path,HOST=host,VARS=args)
+            if args != None:
+                length = len(args)
+            else:
+                length = 0
+            payload = "POST {PATH} HTTP/1.1\r\nHOST: {HOST}\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: {Length}\r\nConnection: close\r\n\r\n{VARS}".format(PATH=path,HOST=host,Length=length,VARS=args)
             print('payload:\r\n',payload)
         
         return payload

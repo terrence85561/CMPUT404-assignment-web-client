@@ -185,6 +185,7 @@ class TestHTTPClient(unittest.TestCase):
         self.assertTrue(req.body.find(path)>=0, "Data: [%s] " % req.body)
 
     def testGETHeaders(self):
+        print('-------------------------testing get header')
         '''Test HTTP GET Headers'''
         MyHTTPHandler.get = header_check
         MyHTTPHandler.post = die_on_method
@@ -196,6 +197,7 @@ class TestHTTPClient(unittest.TestCase):
         self.assertTrue(req.code == 200)
 
     def testPOSTHeaders(self):
+        print('---------------------testing post head')
         '''Test HTTP POST Headers'''
         MyHTTPHandler.post = post_header_check
         MyHTTPHandler.get  = die_on_method
@@ -210,6 +212,7 @@ class TestHTTPClient(unittest.TestCase):
         
     # consider disabling this test until everything else works
     def testInternetGets(self):
+        print("=======================test internet Gets")
         '''Test HTTP Get in the wild, these webservers are far less
            forgiving'''
         MyHTTPHandler.get = echo_path_get
@@ -226,6 +229,7 @@ class TestHTTPClient(unittest.TestCase):
             except Exception as e:
                 print("An Exception was thrown for %s" % url)
                 self.assertTrue( False, "An Exception was thrown for %s %s" % (url,e))
+            print('url is {}, \r\nthe code is {}'.format(url,req.code))
             self.assertTrue(req != None, "None Returned! %s" % url)
             self.assertTrue(req.code == 200 or 
                             req.code == 301 or
