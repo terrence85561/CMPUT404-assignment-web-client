@@ -18,3 +18,5 @@ examples thus some of the code is Copyright © 2001-2013 Python
 Software Foundation; All Rights Reserved under the PSF license (GPL
 compatible) http://docs.python.org/2/library/socketserver.html
 
+Reference:
+    "Get a string after a specific substring" https://stackoverflow.com/questions/12572362/get-a-string-after-a-specific-substring/12572391
