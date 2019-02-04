@@ -83,7 +83,7 @@ class HTTPClient(object):
             self.connect(host_name,port)
             
             # create payload
-            payload = self.make_payload(host_name,path,method = "GET")
+            payload = self.make_payload(host_name,port,path,method = "GET")
             # send payload
             self.sendall(payload)
 
@@ -120,7 +120,7 @@ class HTTPClient(object):
             self.connect(host_name,port)
 
             #create payload
-            payload = self.make_payload(host_name,path,method="POST",args=args)
+            payload = self.make_payload(host_name,port,path,method="POST",args=args)
             
             self.sendall(payload)
             # receive data
@@ -165,9 +165,9 @@ class HTTPClient(object):
         
         return scheme,host_name,port,path
 
-    def make_payload(self,host,path,method,args = None):
+    def make_payload(self,host,port,path,method,args = None):
         if method == 'GET':
-            payload = "GET {PATH} HTTP/1.1\r\nHOST: {HOST}\r\nConnection: close\r\n\r\n".format(PATH=path,HOST=host)
+            payload = "GET {PATH} HTTP/1.1\r\nHOST: {HOST}:{PORT}\r\nConnection: close\r\n\r\n".format(PATH=path,HOST=host,PORT=port)
             print('payload:\r\n',payload)
             
 
@@ -176,7 +176,7 @@ class HTTPClient(object):
                 length = len(args)
             else:
                 length = 0
-            payload = "POST {PATH} HTTP/1.1\r\nHOST: {HOST}\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: {Length}\r\nConnection: close\r\n\r\n{VARS}".format(PATH=path,HOST=host,Length=length,VARS=args)
+            payload = "POST {PATH} HTTP/1.1\r\nHOST: {HOST}:{PORT}\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: {Length}\r\nConnection: close\r\n\r\n{VARS}".format(PATH=path,HOST=host,PORT=port,Length=length,VARS=args)
             print('payload:\r\n',payload)
         
         return payload
