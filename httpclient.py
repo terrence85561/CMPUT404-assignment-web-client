@@ -174,9 +174,12 @@ class HTTPClient(object):
         elif method == 'POST':
             if args != None:
                 length = len(args)
+                payload = "POST {PATH} HTTP/1.1\r\nHOST: {HOST}:{PORT}\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: {Length}\r\nConnection: close\r\n\r\n{VARS}".format(PATH=path,HOST=host,PORT=port,Length=length,VARS=args)
+
             else:
                 length = 0
-            payload = "POST {PATH} HTTP/1.1\r\nHOST: {HOST}:{PORT}\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: {Length}\r\nConnection: close\r\n\r\n{VARS}".format(PATH=path,HOST=host,PORT=port,Length=length,VARS=args)
+                payload = "POST {PATH} HTTP/1.1\r\nHOST: {HOST}:{PORT}\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: {Length}\r\nConnection: close\r\n\r\n".format(PATH=path,HOST=host,PORT=port,Length=length)
+
             print('payload:\r\n',payload)
         
         return payload
