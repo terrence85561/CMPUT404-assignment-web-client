@@ -31,7 +31,8 @@ class HTTPResponse(object):
     def __init__(self, code=200, body=""):
         self.code = int(code)
         self.body = body
-        print('the body is:\r\n',body)
+        print('the code is:\r\n',self.code)
+        print('the body is:\r\n',self.body)
         
 
 class HTTPClient(object):
@@ -92,10 +93,10 @@ class HTTPClient(object):
             data = self.recvall(self.socket)
 
         except Exception as e:
-            print(str(e))
+            #print(str(e))
             code = 404
-            
-            return HTTPResponse(code = code)
+            body = str(e)
+            return HTTPResponse(code,body)
         
         finally:
             print('closing connection')
