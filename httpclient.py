@@ -31,6 +31,7 @@ class HTTPResponse(object):
     def __init__(self, code=200, body=""):
         self.code = int(code)
         self.body = body
+        print('the body is:\r\n',body)
         
 
 class HTTPClient(object):
@@ -46,7 +47,7 @@ class HTTPClient(object):
         return data.split()[1]
 
     def get_headers(self,data):
-        print(data)
+        #print(data)
         header = data.split("\r\n\r\n")[0]
         
         return header
@@ -77,7 +78,7 @@ class HTTPClient(object):
     def GET(self, url, args=None):
         # call url parser to get information of url
         scheme,host_name,port,path = self.urlparser(url)
-        print('scheme:{}; host_name:{}; port:{}; path:{}'.format(scheme,host_name,port,path))
+        #print('scheme:{}; host_name:{}; port:{}; path:{}'.format(scheme,host_name,port,path))
         try:
             # create a socket object, begins connection
             self.connect(host_name,port)
@@ -113,7 +114,7 @@ class HTTPClient(object):
         # get vars in args
         if args != None:
             args = urlencode(args)
-            print('the variables in post request body are %s'%args)
+            #print('the variables in post request body are %s'%args)
         
         try:
             # create a socket object,begins connection
@@ -125,7 +126,7 @@ class HTTPClient(object):
             self.sendall(payload)
             # receive data
             data = self.recvall(self.socket)
-            print(data)
+            #print(data)
         except Exception as e:
             print(str(e))
             code = 404
